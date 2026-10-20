@@ -36,6 +36,7 @@ export default function App() {
   const [selectedItemForModal, setSelectedItemForModal] = useState<PracticeItem | null>(null);
   const [selectedPdfForViewer, setSelectedPdfForViewer] = useState<ReferencePdf | null>(null);
   const [currentPdfPage, setCurrentPdfPage] = useState(1);
+  const [pdfViewMode, setPdfViewMode] = useState<'pdf' | 'notes'>('pdf');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'sheets' | 'pdfs' | 'subcategories'>('sheets');
   const [hiddenSubcategories, setHiddenSubcategories] = useState<Record<string, boolean>>(() => {
@@ -703,76 +704,120 @@ export default function App() {
               </p>
             </div>
 
-            {/* Interactive PDF / Document Reader View */}
-            {(() => {
-              const totalPages = selectedPdfForViewer.pages?.length || 1;
-              const currentPageData = selectedPdfForViewer.pages?.[currentPdfPage - 1] || selectedPdfForViewer.pages?.[0];
+            {/* View Mode Toggle */}
+            <div className={`grid grid-cols-2 gap-1 p-1 rounded-xl border ${
+              isDarkMode ? 'bg-[#121212] border-[#2A2A30]' : 'bg-slate-100 border-slate-200'
+            }`}>
+              <button
+                type="button"
+                onClick={() => setPdfViewMode('pdf')}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  pdfViewMode === 'pdf'
+                    ? 'text-white shadow-md'
+                    : isDarkMode ? 'text-neutral-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                style={pdfViewMode === 'pdf' ? { backgroundColor: primaryBlue } : {}}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>PDF Document</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPdfViewMode('notes')}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  pdfViewMode === 'notes'
+                    ? 'text-white shadow-md'
+                    : isDarkMode ? 'text-neutral-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                style={pdfViewMode === 'notes' ? { backgroundColor: primaryBlue } : {}}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Study Notes</span>
+              </button>
+            </div>
 
-              return (
-                <div className={`w-full h-80 border rounded-xl p-5 overflow-y-auto flex flex-col justify-between ${
-                  isDarkMode ? 'bg-[#121212] border-[#2A2A30]' : 'bg-slate-50 border-slate-200'
-                }`}>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider opacity-70">
-                        Page {currentPdfPage} of {totalPages}
-                      </span>
-                      <span className="text-xs font-mono font-bold opacity-70">
-                        {selectedPdfForViewer.fileName}
-                      </span>
+            {/* PDF View vs Study Notes View */}
+            {pdfViewMode === 'pdf' ? (
+              <div className={`w-full h-96 border rounded-xl overflow-hidden ${
+                isDarkMode ? 'bg-[#121212] border-[#2A2A30]' : 'bg-slate-100 border-slate-200'
+              }`}>
+                <iframe
+                  src={selectedPdfForViewer.dataUri}
+                  className="w-full h-full border-0"
+                  title={selectedPdfForViewer.title}
+                />
+              </div>
+            ) : (
+              (() => {
+                const totalPages = selectedPdfForViewer.pages?.length || 1;
+                const currentPageData = selectedPdfForViewer.pages?.[currentPdfPage - 1] || selectedPdfForViewer.pages?.[0];
+
+                return (
+                  <div className={`w-full h-80 border rounded-xl p-5 overflow-y-auto flex flex-col justify-between ${
+                    isDarkMode ? 'bg-[#121212] border-[#2A2A30]' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-70">
+                          Page {currentPdfPage} of {totalPages}
+                        </span>
+                        <span className="text-xs font-mono font-bold opacity-70">
+                          {selectedPdfForViewer.fileName}
+                        </span>
+                      </div>
+
+                      {currentPageData ? (
+                        <div className="space-y-3">
+                          <h4 className="text-base font-bold">{currentPageData.heading}</h4>
+                          <ul className="space-y-1.5 list-disc list-inside text-xs sm:text-sm leading-relaxed opacity-90">
+                            {currentPageData.content.map((bullet, idx) => (
+                              <li key={idx}>{bullet}</li>
+                            ))}
+                          </ul>
+
+                          {currentPageData.musicalExample && (
+                            <div className={`mt-3 p-3 rounded-lg border text-xs space-y-1 ${
+                              isDarkMode ? 'bg-[#1E1E1E] border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                            }`}>
+                              <p className="font-bold">{currentPageData.musicalExample.title}</p>
+                              {currentPageData.musicalExample.chords && (
+                                <p className="font-mono text-[11px] opacity-80">{currentPageData.musicalExample.chords}</p>
+                              )}
+                              <p className="italic opacity-80">{currentPageData.musicalExample.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm italic opacity-70">No content available for this page.</p>
+                      )}
                     </div>
 
-                    {currentPageData ? (
-                      <div className="space-y-3">
-                        <h4 className="text-base font-bold">{currentPageData.heading}</h4>
-                        <ul className="space-y-1.5 list-disc list-inside text-xs sm:text-sm leading-relaxed opacity-90">
-                          {currentPageData.content.map((bullet, idx) => (
-                            <li key={idx}>{bullet}</li>
-                          ))}
-                        </ul>
-
-                        {currentPageData.musicalExample && (
-                          <div className={`mt-3 p-3 rounded-lg border text-xs space-y-1 ${
-                            isDarkMode ? 'bg-[#1E1E1E] border-white/10' : 'bg-white border-slate-200 shadow-sm'
-                          }`}>
-                            <p className="font-bold">{currentPageData.musicalExample.title}</p>
-                            {currentPageData.musicalExample.chords && (
-                              <p className="font-mono text-[11px] opacity-80">{currentPageData.musicalExample.chords}</p>
-                            )}
-                            <p className="italic opacity-80">{currentPageData.musicalExample.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-sm italic opacity-70">No content available for this page.</p>
-                    )}
+                    {/* Page Navigation Footer inside reader */}
+                    <div className="flex items-center justify-between pt-3 border-t mt-3">
+                      <button
+                        type="button"
+                        disabled={currentPdfPage <= 1}
+                        onClick={() => setCurrentPdfPage(p => Math.max(1, p - 1))}
+                        className="px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-30 cursor-pointer"
+                      >
+                        Previous Page
+                      </button>
+                      <span className="text-xs font-bold">
+                        {currentPdfPage} / {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={currentPdfPage >= totalPages}
+                        onClick={() => setCurrentPdfPage(p => Math.min(totalPages, p + 1))}
+                        className="px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-30 cursor-pointer"
+                      >
+                        Next Page
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Page Navigation Footer inside reader */}
-                  <div className="flex items-center justify-between pt-3 border-t mt-3">
-                    <button
-                      type="button"
-                      disabled={currentPdfPage <= 1}
-                      onClick={() => setCurrentPdfPage(p => Math.max(1, p - 1))}
-                      className="px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-30 cursor-pointer"
-                    >
-                      Previous Page
-                    </button>
-                    <span className="text-xs font-bold">
-                      {currentPdfPage} / {totalPages}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={currentPdfPage >= totalPages}
-                      onClick={() => setCurrentPdfPage(p => Math.min(totalPages, p + 1))}
-                      className="px-3 py-1.5 rounded-lg border text-xs font-bold disabled:opacity-30 cursor-pointer"
-                    >
-                      Next Page
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
+                );
+              })()
+            )}
 
             <div className="flex items-center justify-between pt-2">
               <button

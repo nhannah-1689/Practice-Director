@@ -16,8 +16,11 @@ export interface ReferencePdf {
   description: string;
   fileName: string;
   fileSize: string;
+  dataUri: string;
   pages: PdfPage[];
 }
+
+const defaultPdfDataUri = "data:application/pdf;base64,JVBERi0xLjQKJcTl8uXtrS4KMSAw obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/Resources <<\n/Font <<\n/F1 <<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\n>>\n>>\n/MediaBox [0 0 612 792]\n/Contents 4 0 R\n>>\nendobj\n4 0 obj\n<<\n/Length 55\n>>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(Piano Practice Reference Document) Tj\nET\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000288 00000 n \ntrailer\n<<\n/Size 5\n/Root 1 0 R\n>>\nstartxref\n398\n%%EOF";
 
 export const defaultReferencePdfs: ReferencePdf[] = [
   {
@@ -27,6 +30,7 @@ export const defaultReferencePdfs: ReferencePdf[] = [
     description: "Comprehensive reference guide for upper structure triads and altered dominant voicings in contemporary jazz harmony.",
     fileName: "Upper_Structure_Triads_Examples.pdf",
     fileSize: "150 KB",
+    dataUri: defaultPdfDataUri,
     pages: [
       {
         pageNumber: 1,
@@ -65,6 +69,7 @@ export const defaultReferencePdfs: ReferencePdf[] = [
     description: "Quick reference for tritone substitutions, secondary dominants, and modal interchange.",
     fileName: "Reharmonization_Quick_Guide.pdf",
     fileSize: "135 KB",
+    dataUri: defaultPdfDataUri,
     pages: [
       {
         pageNumber: 1,
@@ -102,6 +107,7 @@ export const defaultReferencePdfs: ReferencePdf[] = [
     description: "Comping patterns, basslines, and harmonic accompaniments for hymnody and standards.",
     fileName: "Chord_Patterns.pdf",
     fileSize: "160 KB",
+    dataUri: defaultPdfDataUri,
     pages: [
       {
         pageNumber: 1,
@@ -139,6 +145,7 @@ export const defaultReferencePdfs: ReferencePdf[] = [
     description: "Shell voicings, rootless chords, and modal voicings practice exercises.",
     fileName: "Chord_Voicing_Exercises.pdf",
     fileSize: "175 KB",
+    dataUri: defaultPdfDataUri,
     pages: [
       {
         pageNumber: 1,
@@ -162,6 +169,7 @@ export const defaultReferencePdfs: ReferencePdf[] = [
     description: "Eight distinct technical approaches and rhythmic/pattern variations for practicing the major scale.",
     fileName: "The_Major_Scale_In_8_Ways.pdf",
     fileSize: "190 KB",
+    dataUri: defaultPdfDataUri,
     pages: [
       {
         pageNumber: 1,
