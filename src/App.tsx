@@ -205,6 +205,18 @@ export default function App() {
     }
   };
 
+  const handleItemClick = (item: PracticeItem) => {
+    const matchingPdf = defaultReferencePdfs.find(pdf => 
+      pdf.category.toLowerCase() === item.tier.toLowerCase() ||
+      pdf.title.toLowerCase().includes(item.category.toLowerCase()) ||
+      pdf.title.toLowerCase().includes(item.name.toLowerCase()) ||
+      item.name.toLowerCase().includes(pdf.title.toLowerCase())
+    ) || defaultReferencePdfs[0];
+
+    setSelectedPdfForViewer(matchingPdf);
+    setPdfViewMode('pdf');
+  };
+
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('fpp_sheets_csv_url', csvUrl);
@@ -283,7 +295,7 @@ export default function App() {
                     <div className="grid grid-cols-1 sm:grid-cols-[4fr_1fr] gap-3 items-stretch">
                       {/* Repertoire Source Container */}
                       <div
-                        onClick={() => setSelectedItemForModal(repSource)}
+                        onClick={() => handleItemClick(repSource)}
                         className={`group p-4 sm:p-5 rounded-xl cursor-pointer transition-all active:scale-[0.99] min-w-0 ${
                           isDarkMode 
                             ? 'hover:bg-[#25252B] bg-[#222226]/80 border border-white/5' 
@@ -300,7 +312,7 @@ export default function App() {
 
                       {/* Page # Container */}
                       <div
-                        onClick={() => setSelectedItemForModal(pageItem || {
+                        onClick={() => handleItemClick(pageItem || {
                           id: `${repSource.id}-page`,
                           tier: 'Repertoire',
                           category: 'Page #',
@@ -323,7 +335,7 @@ export default function App() {
                     </div>
                   ) : repSource ? (
                     <div
-                      onClick={() => setSelectedItemForModal(repSource)}
+                      onClick={() => handleItemClick(repSource)}
                       className={`group p-4 sm:p-5 rounded-xl cursor-pointer transition-all active:scale-[0.99] ${
                         isDarkMode 
                           ? 'hover:bg-[#25252B] bg-[#222226]/80 border border-white/5' 
@@ -339,7 +351,7 @@ export default function App() {
                     </div>
                   ) : pageItem ? (
                     <div
-                      onClick={() => setSelectedItemForModal(pageItem)}
+                      onClick={() => handleItemClick(pageItem)}
                       className={`group p-4 sm:p-5 rounded-xl cursor-pointer transition-all active:scale-[0.99] ${
                         isDarkMode 
                           ? 'hover:bg-[#25252B] bg-[#222226]/80 border border-white/5' 
@@ -358,7 +370,7 @@ export default function App() {
                   {otherItems.map((item) => (
                     <div
                       key={item.category}
-                      onClick={() => setSelectedItemForModal(item)}
+                      onClick={() => handleItemClick(item)}
                       className={`group p-4 sm:p-5 rounded-xl cursor-pointer transition-all active:scale-[0.99] ${
                         isDarkMode 
                           ? 'hover:bg-[#25252B] bg-[#222226]/80 border border-white/5' 
@@ -379,7 +391,7 @@ export default function App() {
               currentTierItems.map((item) => (
                 <div
                   key={item.category}
-                  onClick={() => setSelectedItemForModal(item)}
+                  onClick={() => handleItemClick(item)}
                   className={`group p-4 sm:p-5 rounded-xl cursor-pointer transition-all active:scale-[0.99] ${
                     isDarkMode 
                       ? 'hover:bg-[#25252B] bg-[#222226]/80 border border-white/5' 
