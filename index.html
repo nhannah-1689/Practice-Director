@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Practice Director</title>
     <meta name="description" content="An ultra-minimalist piano practice session generator and curriculum companion." />
+    <meta name="theme-color" content="#121212" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon.jpg" />
     <meta property="og:title" content="Practice Director" />
     <meta property="og:description" content="An ultra-minimalist piano practice session generator and curriculum companion." />
     <meta property="og:type" content="website" />
@@ -16,6 +19,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('SW registration failed: ', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
-
