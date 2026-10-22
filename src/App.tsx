@@ -121,8 +121,21 @@ export default function App() {
   };
 
   useEffect(() => {
-    generateSelections(items, false);
     const savedUrl = localStorage.getItem('fpp_sheets_csv_url');
+    const cached = localStorage.getItem('pd_cached_csv_items');
+
+    if (cached) {
+      try {
+        const parsedCached = JSON.parse(cached);
+        if (parsedCached && parsedCached.length > 0) {
+          setItems(parsedCached);
+          generateSelections(parsedCached, false);
+        }
+      } catch {}
+    } else {
+      generateSelections(items, false);
+    }
+
     if (savedUrl) {
       setCsvUrl(savedUrl);
       fetchCsvData(savedUrl, false);
@@ -148,6 +161,7 @@ export default function App() {
 
       if (parsedItems.length > 0) {
         setItems(parsedItems);
+        localStorage.setItem('pd_cached_csv_items', JSON.stringify(parsedItems));
         generateSelections(parsedItems, true);
         if (showFeedback) {
           setCsvStatus({
@@ -159,12 +173,30 @@ export default function App() {
         throw new Error('No valid items found in CSV.');
       }
     } catch (err: any) {
-      console.warn('Google Sheets CSV fetch restricted by browser CORS. Falling back to default database.');
+      console.warn('Network fetch error or offline. Checking local cache...', err);
+      const cached = localStorage.getItem('pd_cached_csv_items');
+      if (cached) {
+        try {
+          const parsedCached = JSON.parse(cached);
+          if (parsedCached && parsedCached.length > 0) {
+            setItems(parsedCached);
+            generateSelections(parsedCached, false);
+            if (showFeedback) {
+              setCsvStatus({
+                message: `Offline mode: Loaded ${parsedCached.length} items from local cache.`,
+                isError: false
+              });
+            }
+            return;
+          }
+        } catch {}
+      }
+
       setItems(defaultPracticeDataset);
       generateSelections(defaultPracticeDataset, true);
       if (showFeedback) {
         setCsvStatus({
-          message: 'Direct fetch restricted by browser CORS security. Using built-in database.',
+          message: 'Offline: No cached Google Sheet data found. Using built-in database.',
           isError: true
         });
       }
@@ -187,7 +219,7 @@ export default function App() {
   const currentTierItems = rawTierItems.filter(item => !hiddenSubcategories[`${item.tier}:${item.category.trim()}`]);
 
   return (
-    <div className={`h-screen w-screen overflow-hidden flex flex-col font-sora antialiased transition-colors duration-150 ${
+    <div className={`h-[100dvh] w-screen fixed inset-0 overflow-hidden flex flex-col font-sora antialiased transition-colors duration-150 ${
       isDarkMode 
         ? 'bg-[#121212] text-[#F3F4F6] selection:bg-blue-500/30 selection:text-white' 
         : 'bg-[#F4F5F7] text-[#1F2937] selection:bg-blue-500/20 selection:text-blue-900'
